@@ -1,126 +1,184 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1>{{ asset.name }} ({{ asset.ticker }})</h1>
-    <p class="lead">Portafoglio: {{ portfolio.name }}</p>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>{{ asset.name }} ({{ asset.ticker }})</h2>
+            <p class="text-muted">Tipo: {{ asset.asset_type }} | Valuta: {{ asset.currency }} | Portafoglio: {{ portfolio.name }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('portfolio.view', id=portfolio.id) }}" class="btn btn-secondary mb-2">
+                <i class="fas fa-arrow-left me-1"></i> Torna al portafoglio
+            </a>
+        </div>
+    </div>
 
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-header">Quote attuali</div>
+    <!-- Statistiche personali -->
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">{{ stats.current_shares }}</h5>
+                    <h6 class="text-muted">Valore Attuale</h6>
+                    <h5 class="format-currency">{{ stats.current_value }}</h5>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-secondary mb-3">
-                <div class="card-header">Valore attuale</div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
                 <div class="card-body">
-                    <h5 class="card-title format-currency">{{ stats.current_value }}</h5>
+                    <h6 class="text-muted">Capitale Investito</h6>
+                    <h5 class="format-currency">{{ stats.invested_capital }}</h5>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-header">Investito</div>
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
                 <div class="card-body">
-                    <h5 class="card-title format-currency">{{ stats.invested_capital }}</h5>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-danger mb-3">
-                <div class="card-header">Rendimento</div>
-                <div class="card-body">
-                    <h5 class="card-title format-percentage">{{ stats.performance }}</h5>
+                    <h6 class="text-muted">Performance</h6>
+                    <h5 class="format-percentage {% if stats.performance > 0 %}performance-positive{% elif stats.performance < 0 %}performance-negative{% endif %}">
+                        {{ stats.performance }}
+                    </h5>
                 </div>
             </div>
         </div>
     </div>
 
-    <h3>Transazioni</h3>
-    {% if transactions %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Quantità</th>
-                    <th>Prezzo</th>
-                    <th>Commissione</th>
-                    <th>Note</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tx in transactions %}
-                <tr>
-                    <td>{{ tx.transaction_date.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ tx.transaction_type }}</td>
-                    <td>{{ tx.shares }}</td>
-                    <td>{{ tx.price }}</td>
-                    <td>{{ tx.commission }}</td>
-                    <td>{{ tx.notes }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Nessuna transazione disponibile.</p>
-    {% endif %}
+    <!-- Transazioni -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-exchange-alt me-1"></i> Transazioni</h5>
+            <div>
+                <a href="{{ url_for('asset.add_transaction', asset_id=asset.id) }}" class="btn btn-sm btn-success">
+                    <i class="fas fa-plus me-1"></i> Aggiungi
+                </a>
+                {% if transactions %}
+                <form method="POST" action="{{ url_for('asset.delete', id=asset.id) }}" class="d-inline" onsubmit="return confirm('Eliminare tutte le transazioni e l’asset?');">
+                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash-alt me-1"></i> Elimina Asset</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            {% if transactions %}
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Tipo</th>
+                            <th>Quantità</th>
+                            <th>Prezzo</th>
+                            <th>Commissioni</th>
+                            <th>Note</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transactions %}
+                        <tr>
+                            <td>{{ tx.transaction_date.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ tx.transaction_type }}</td>
+                            <td>{{ tx.shares }}</td>
+                            <td class="format-currency">{{ tx.price }}</td>
+                            <td class="format-currency">{{ tx.commission }}</td>
+                            <td>{{ tx.notes or '-' }}</td>
+                            <td>
+                                <a href="{{ url_for('asset.edit_transaction', id=tx.id) }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ url_for('asset.delete_transaction', id=tx.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Eliminare questa transazione?');">
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p class="text-muted">Nessuna transazione ancora registrata.</p>
+            {% endif %}
+        </div>
+    </div>
 
-    <a href="{{ url_for('asset.add_transaction', asset_id=asset.id) }}" class="btn btn-primary mt-3">
-        <i class="fas fa-plus"></i> Aggiungi transazione
-    </a>
-
-    <hr>
-
-    <h3>Performance</h3>
-    <ul class="list-group">
-        {% for key, perf in performance.items() %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ perf.name }}
-                <span class="badge {% if perf.value > 0 %}bg-success{% elif perf.value < 0 %}bg-danger{% else %}bg-secondary{% endif %}">
-                    {{ perf.value }}%
-                </span>
-            </li>
-        {% endfor %}
-    </ul>
-
-    <hr>
-
-    <h3>Andamento Storico</h3>
-    <canvas id="priceChart" height="100"></canvas>
+    <!-- Performance Storica -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-chart-line me-1"></i> Performance Storica</h5>
+            <select id="periodSelect" class="form-select form-select-sm w-auto">
+                <option value="1m">1 mese</option>
+                <option value="3m">3 mesi</option>
+                <option value="6m">6 mesi</option>
+                <option value="ytd">YTD</option>
+                <option value="1y" selected>1 anno</option>
+                <option value="3y">3 anni</option>
+                <option value="5y">5 anni</option>
+                <option value="max">Max</option>
+            </select>
+        </div>
+        <div class="card-body">
+            <canvas id="performanceChart" height="100"></canvas>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('priceChart').getContext('2d');
-    const chartData = {{ chart_data | safe }};
-    const labels = chartData.map(point => point.date);
-    const data = chartData.map(point => point.price);
+    const chartData = {{ chart_data|safe }};
+    let currentChart;
 
-    const priceChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Prezzo',
-                data: data,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: false
+    function renderChart(period = '1y') {
+        const filteredData = chartData.filter(d => {
+            const today = new Date();
+            const date = new Date(d.date);
+            const diffDays = (today - date) / (1000 * 60 * 60 * 24);
+            switch (period) {
+                case '1m': return diffDays <= 30;
+                case '3m': return diffDays <= 90;
+                case '6m': return diffDays <= 180;
+                case 'ytd': return date.getFullYear() === today.getFullYear();
+                case '1y': return diffDays <= 365;
+                case '3y': return diffDays <= 1095;
+                case '5y': return diffDays <= 1825;
+                case 'max': return true;
+                default: return true;
+            }
+        });
+
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        if (currentChart) currentChart.destroy();
+
+        currentChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: filteredData.map(d => d.date),
+                datasets: [{
+                    label: 'Prezzo',
+                    data: filteredData.map(d => d.price),
+                    fill: false,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    x: { display: true },
+                    y: { display: true }
                 }
             }
-        }
+        });
+    }
+
+    document.getElementById('periodSelect').addEventListener('change', (e) => {
+        renderChart(e.target.value);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderChart();
     });
 </script>
 {% endblock %}

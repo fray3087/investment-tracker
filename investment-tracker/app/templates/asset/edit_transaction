@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-edit me-2"></i> Modifica Transazione - {{ asset.name }}</h5>
+            <a href="{{ url_for('asset.view', id=asset.id) }}" class="btn btn-sm btn-light">
+                <i class="fas fa-arrow-left"></i> Torna all'asset
+            </a>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    {{ form.transaction_date.label(class="form-label") }}
+                    {{ form.transaction_date(class="form-control") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.transaction_type.label(class="form-label") }}
+                    {{ form.transaction_type(class="form-select") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.shares.label(class="form-label") }}
+                    {{ form.shares(class="form-control") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.price.label(class="form-label") }}
+                    {{ form.price(class="form-control") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.commission.label(class="form-label") }}
+                    {{ form.commission(class="form-control") }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.notes.label(class="form-label") }}
+                    {{ form.notes(class="form-control") }}
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-warning btn-lg text-white">
+                        <i class="fas fa-save me-2"></i> Aggiorna
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

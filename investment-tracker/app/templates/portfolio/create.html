@@ -1,17 +1,45 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="container mt-5">
-    <h2>Crea un nuovo portafoglio</h2>
-    <form method="POST">
-      {{ form.hidden_tag() }}
-      <div class="form-group">
-        {{ form.name.label }}<br>
-        {{ form.name(class="form-control") }}
-      </div>
-      <div class="form-group mt-3">
-        {{ form.submit(class="btn btn-primary") }}
-      </div>
-    </form>
-  </div>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i> Crea un nuovo portafoglio</h5>
+                <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-light">
+                    <i class="fas fa-arrow-left"></i> Torna alla dashboard
+                </a>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label") }}
+                        {{ form.name(class="form-control", placeholder="Es. Portafoglio ETF 2024") }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.name.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", rows="3", placeholder="Descrizione del portafoglio") }}
+                        {% if form.description.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.description.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

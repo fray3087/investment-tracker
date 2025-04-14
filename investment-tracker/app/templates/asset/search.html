@@ -1,31 +1,70 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-  <div class="container mt-5">
-    <h2>Cerca un asset</h2>
-    <form method="POST">
-      {{ form.hidden_tag() }}
-      <div class="form-group">
-        {{ form.query.label }}
-        {{ form.query(class="form-control") }}
-      </div>
-      <div class="form-group mt-3">
-        {{ form.portfolio_id.label }}
-        {{ form.portfolio_id(class="form-select") }}
-      </div>
-      <div class="form-group mt-3">
-        {{ form.submit(class="btn btn-primary") }}
-      </div>
-    </form>
-    
+<div class="row mt-5">
+    <div class="col-md-10 offset-md-1">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-search me-2"></i> Cerca Strumenti Finanziari</h5>
+                <a href="{{ url_for('main.index') }}" class="btn btn-sm btn-light">
+                    <i class="fas fa-arrow-left"></i> Torna alla dashboard
+                </a>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
 
-    {% if asset %}
-      <div class="mt-4">
-        <h5>Risultato:</h5>
-        <p><strong>Nome:</strong> {{ asset.name }}</p>
-        <p><strong>Simbolo:</strong> {{ asset.symbol }}</p>
-        <p><strong>Prezzo attuale:</strong> {{ asset.price }}</p>
-      </div>
-    {% endif %}
-  </div>
+                    <div class="mb-3">
+                        {{ form.query.label(class="form-label") }}
+                        {{ form.query(class="form-control", placeholder="Es. SWDA.MI, IT0000062072, Ishares World...") }}
+                        {% if form.query.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.query.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.portfolio_id.label(class="form-label") }}
+                        {{ form.portfolio_id(class="form-select") }}
+                        {% if form.portfolio_id.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.portfolio_id.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if asset %}
+        <div class="card shadow mt-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Risultato Ricerca</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Nome:</strong> {{ asset['shortName'] }}</p>
+                <p><strong>Simbolo:</strong> {{ asset['symbol'] }}</p>
+                <p><strong>Prezzo Attuale:</strong> {{ asset['regularMarketPrice'] }} {{ asset['currency'] }}</p>
+                <p><strong>Valuta:</strong> {{ asset['currency'] }}</p>
+                <p><strong>Exchange:</strong> {{ asset['fullExchangeName'] }}</p>
+
+                <form method="POST" action="{{ url_for('asset.add', symbol=asset['symbol'], portfolio_id=form.portfolio_id.data) }}">
+                    <button type="submit" class="btn btn-success mt-3">
+                        <i class="fas fa-plus me-1"></i> Aggiungi al portafoglio
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% elif searched %}
+        <div class="alert alert-warning mt-4 text-center">
+            Nessuno strumento trovato. Verifica il simbolo o il nome.
+        </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

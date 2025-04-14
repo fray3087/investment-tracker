@@ -20,6 +20,13 @@ asset = Blueprint('asset', __name__)
 def search():
     """Cerca uno strumento finanziario"""
     form = AssetSearchForm()
+
+    # ✅ Popola le opzioni del SelectField PRIMA della validazione
+    portfolios = Portfolio.query.filter_by(user_id=current_user.id).all()
+    form.portfolio_id.choices = [(p.id, p.name) for p in portfolios]
+
+    asset = None
+    searched = False
     
     if form.validate_on_submit():
         query = form.query.data
@@ -73,9 +80,11 @@ def search():
             
             # Rendi la pagina con i risultati
             return render_template('asset/search.html',
-                                title='Risultati ricerca',
-                                results=results,
-                                portfolio_id=portfolio_id)
+                       title='Risultati ricerca',
+                       results=results,
+                       portfolio_id=portfolio_id,
+                       form=form)
+
                                 
         except Exception as e:
             flash(f'Errore nella ricerca: {str(e)}')
@@ -90,7 +99,7 @@ def search():
     if portfolio_id:
         form.portfolio_id.data = portfolio_id
     
-    return render_template('asset/search.html',
+    return render_template("asset/search.html",
                           title='Cerca strumento',
                           form=form)
 

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>{{ asset.name }} ({{ asset.ticker }})</h1>
+    <p class="lead">Portafoglio: {{ portfolio.name }}</p>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Quote attuali</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ stats.current_shares }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-header">Valore attuale</div>
+                <div class="card-body">
+                    <h5 class="card-title format-currency">{{ stats.current_value }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Investito</div>
+                <div class="card-body">
+                    <h5 class="card-title format-currency">{{ stats.invested_capital }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Rendimento</div>
+                <div class="card-body">
+                    <h5 class="card-title format-percentage">{{ stats.performance }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Transazioni</h3>
+    {% if transactions %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Quantità</th>
+                    <th>Prezzo</th>
+                    <th>Commissione</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr>
+                    <td>{{ tx.transaction_date.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ tx.transaction_type }}</td>
+                    <td>{{ tx.shares }}</td>
+                    <td>{{ tx.price }}</td>
+                    <td>{{ tx.commission }}</td>
+                    <td>{{ tx.notes }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nessuna transazione disponibile.</p>
+    {% endif %}
+
+    <a href="{{ url_for('asset.add_transaction', asset_id=asset.id) }}" class="btn btn-primary mt-3">
+        <i class="fas fa-plus"></i> Aggiungi transazione
+    </a>
+
+    <hr>
+
+    <h3>Performance</h3>
+    <ul class="list-group">
+        {% for key, perf in performance.items() %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ perf.name }}
+                <span class="badge {% if perf.value > 0 %}bg-success{% elif perf.value < 0 %}bg-danger{% else %}bg-secondary{% endif %}">
+                    {{ perf.value }}%
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <h3>Andamento Storico</h3>
+    <canvas id="priceChart" height="100"></canvas>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    const chartData = {{ chart_data | safe }};
+    const labels = chartData.map(point => point.date);
+    const data = chartData.map(point => point.price);
+
+    const priceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Prezzo',
+                data: data,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

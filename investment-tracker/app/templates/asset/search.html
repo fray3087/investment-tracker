@@ -41,28 +41,48 @@
             </div>
         </div>
 
-        {% if asset %}
+        {% if results is defined %}
         <div class="card shadow mt-4">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Risultato Ricerca</h5>
+                <h5 class="mb-0"><i class="fas fa-search me-2"></i> Risultati della Ricerca</h5>
             </div>
             <div class="card-body">
-                <p><strong>Nome:</strong> {{ asset['shortName'] }}</p>
-                <p><strong>Simbolo:</strong> {{ asset['symbol'] }}</p>
-                <p><strong>Prezzo Attuale:</strong> {{ asset['regularMarketPrice'] }} {{ asset['currency'] }}</p>
-                <p><strong>Valuta:</strong> {{ asset['currency'] }}</p>
-                <p><strong>Exchange:</strong> {{ asset['fullExchangeName'] }}</p>
-
-                <form method="POST" action="{{ url_for('asset.add', symbol=asset['symbol'], portfolio_id=form.portfolio_id.data) }}">
-                    <button type="submit" class="btn btn-success mt-3">
-                        <i class="fas fa-plus me-1"></i> Aggiungi al portafoglio
-                    </button>
-                </form>
+                {% if results %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ticker</th>
+                                    <th>Nome</th>
+                                    <th>Tipo</th>
+                                    <th>Borsa</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+                                    <td>{{ result.ticker }}</td>
+                                    <td>{{ result.name }}</td>
+                                    <td>{{ result.type }}</td>
+                                    <td>{{ result.exchange }}</td>
+                                    <td>
+                                        <a href="{{ url_for('asset.add', ticker=result.ticker, portfolio_id=portfolio_id) }}"
+                                           class="btn btn-sm btn-success">
+                                            <i class="fas fa-plus"></i> Aggiungi
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning text-center">
+                        Nessuno strumento trovato. Verifica il simbolo o il nome.
+                    </div>
+                {% endif %}
             </div>
-        </div>
-        {% elif searched %}
-        <div class="alert alert-warning mt-4 text-center">
-            Nessuno strumento trovato. Verifica il simbolo o il nome.
         </div>
         {% endif %}
     </div>

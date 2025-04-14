@@ -1,94 +1,99 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="row mt-5">
-    <div class="col-md-12">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i> Dettagli del Portafoglio: {{ portfolio.name }}</h5>
-                <a href="{{ url_for('portfolio.list') }}" class="btn btn-sm btn-light">
-                    <i class="fas fa-arrow-left"></i> Torna alla lista
-                </a>
-            </div>
-            <div class="card-body">
+<div class="container mt-5">
+    <h1 class="mb-4">{{ portfolio.name }}</h1>
 
-                <div class="mb-4">
-                    <p><strong>Descrizione:</strong> {{ portfolio.description or "Nessuna descrizione disponibile" }}</p>
-                    <p><strong>Creato il:</strong> {{ portfolio.created_at.strftime('%d/%m/%Y') }}</p>
+    <!-- Statistiche del portafoglio -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Valore Attuale</h5>
+                    <p class="card-text format-currency">{{ stats.current_value }}</p>
                 </div>
-
-                <!-- Statistiche -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card border-start border-4 border-primary shadow-sm">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Valore Attuale</h6>
-                                <h4 class="format-currency">{{ portfolio.current_value() }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card border-start border-4 border-secondary shadow-sm">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Capitale Investito</h6>
-                                <h4 class="format-currency">{{ portfolio.invested_capital() }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card border-start border-4 border-success shadow-sm">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Rendimento Totale</h6>
-                                <h4 class="format-percentage {% if portfolio.total_return() > 0 %}performance-positive{% elif portfolio.total_return() < 0 %}performance-negative{% endif %}">
-                                    {{ portfolio.total_return() }}
-                                </h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Asset -->
-                <h5 class="mb-3"><i class="fas fa-coins me-2"></i> Asset nel Portafoglio</h5>
-                {% if assets %}
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Strumento</th>
-                                    <th>Simbolo</th>
-                                    <th>Quantità</th>
-                                    <th>Prezzo Medio</th>
-                                    <th>Valore Attuale</th>
-                                    <th>Rendimento</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for asset in assets %}
-                                <tr>
-                                    <td>{{ asset.name }}</td>
-                                    <td>{{ asset.symbol }}</td>
-                                    <td>{{ asset.quantity }}</td>
-                                    <td class="format-currency">{{ asset.average_price }}</td>
-                                    <td class="format-currency">{{ asset.current_value }}</td>
-                                    <td class="format-percentage {% if asset.performance > 0 %}performance-positive{% elif asset.performance < 0 %}performance-negative{% endif %}">
-                                        {{ asset.performance }}
-                                    </td>
-                                    <td>
-                                        <a href="{{ url_for('asset.view', id=asset.id) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="alert alert-info text-center">Nessun asset presente nel portafoglio.</div>
-                {% endif %}
-
             </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Capitale Investito</h5>
+                    <p class="card-text format-currency">{{ stats.invested_capital }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Rendimento Totale</h5>
+                    <p class="card-text format-percentage {% if stats.total_return > 0 %}performance-positive{% elif stats.total_return < 0 %}performance-negative{% endif %}">{{ stats.total_return }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary shadow">
+                <div class="card-body">
+                    <h5 class="card-title">N. Asset</h5>
+                    <p class="card-text">{{ stats.asset_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabella degli asset -->
+    <div class="card shadow">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Strumenti nel Portafoglio</h5>
+            <a href="{{ url_for('asset.search', portfolio_id=portfolio.id) }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-search me-1"></i> Aggiungi Strumento
+            </a>
+        </div>
+        <div class="card-body p-0">
+            {% if assets %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Ticker</th>
+                            <th>Quantità</th>
+                            <th>Valore Attuale</th>
+                            <th>Investito</th>
+                            <th>Rendimento</th>
+                            <th>Prezzo</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in assets %}
+                        <tr>
+                            <td>{{ asset['name'] }}</td>
+                            <td>{{ asset['ticker'] }}</td>
+                            <td>{{ asset['shares'] }}</td>
+                            <td class="format-currency">{{ asset['value'] }}</td>
+                            <td class="format-currency">{{ asset['invested'] }}</td>
+                            <td class="format-percentage {% if asset['return'] > 0 %}performance-positive{% elif asset['return'] < 0 %}performance-negative{% endif %}">
+                                {{ asset['return'] }}
+                            </td>
+                            <td class="format-currency">{{ asset['price'] }}</td>
+                            <td>
+                                <a href="{{ url_for('asset.view', id=asset['id']) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('asset.add_transaction', asset_id=asset['id']) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-4 text-center">
+                <p class="mb-0">Nessun asset presente in questo portafoglio.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

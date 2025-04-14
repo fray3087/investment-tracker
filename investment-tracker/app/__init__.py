@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from config import config
+from datetime import datetime
+
 
 # Inizializzazione delle estensioni
 db = SQLAlchemy()
@@ -41,4 +43,11 @@ def create_app(config_name):
     from app.routes.errors import errors as errors_blueprint
     app.register_blueprint(errors_blueprint)
     
+    # 🔥 Iniezione della data corrente nei template
+    from datetime import datetime
+
+    @app.context_processor
+    def inject_now():
+        return {'now': datetime.now()}
+
     return app

@@ -72,7 +72,7 @@ def search():
                         })
             
             # Rendi la pagina con i risultati
-            return render_template('asset/search_results.html',
+            return render_template('asset/search.html',
                                 title='Risultati ricerca',
                                 results=results,
                                 portfolio_id=portfolio_id)

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>Cerca un asset</h2>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        {{ form.query.label }}
+        {{ form.query(class="form-control") }}
+      </div>
+      <div class="form-group mt-3">
+        {{ form.portfolio_id.label }}
+        {{ form.portfolio_id(class="form-select") }}
+      </div>
+      <div class="form-group mt-3">
+        {{ form.submit(class="btn btn-primary") }}
+      </div>
+    </form>
+    
+
+    {% if asset %}
+      <div class="mt-4">
+        <h5>Risultato:</h5>
+        <p><strong>Nome:</strong> {{ asset.name }}</p>
+        <p><strong>Simbolo:</strong> {{ asset.symbol }}</p>
+        <p><strong>Prezzo attuale:</strong> {{ asset.price }}</p>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

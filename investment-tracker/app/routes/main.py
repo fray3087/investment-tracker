@@ -1,9 +1,13 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, current_user
 from app.models.portfolio import Portfolio
+from datetime import datetime
+
+
 
 # Crea il blueprint
 main = Blueprint('main', __name__)
+
 
 @main.route('/')
 @main.route('/index')
@@ -73,3 +77,7 @@ def dashboard():
 def profile():
     """Pagina del profilo utente"""
     return render_template('profile.html', title='Profilo', user=current_user)
+
+@main.route('/')
+def home():
+    return render_template('welcome.html', title='Benvenuto', now=datetime.now())

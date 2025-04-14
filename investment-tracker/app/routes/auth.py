@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.urls import url_parse
+from urllib.parse import urlparse
 from app import db
 from app.models.user import User
 from app.forms.auth import LoginForm, RegistrationForm, ResetPasswordRequestForm, ResetPasswordForm
-from app.utils.email import send_password_reset_email
+#from app.utils.email import send_password_reset_email
 
 # Crea il blueprint
 auth = Blueprint('auth', __name__)

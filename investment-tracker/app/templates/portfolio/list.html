@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>I tuoi portafogli</h2>
+    {% if portfolios %}
+      <ul class="list-group">
+        {% for portfolio in portfolios %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ portfolio.name }}</span>
+            <a href="{{ url_for('portfolio.view', id=portfolio.id) }}" class="btn btn-sm btn-outline-primary">Visualizza</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Non hai ancora creato nessun portafoglio.</p>
+    {% endif %}
+    <a href="{{ url_for('portfolio.create') }}" class="btn btn-success mt-3">+ Crea nuovo portafoglio</a>
+  </div>
+{% endblock %}

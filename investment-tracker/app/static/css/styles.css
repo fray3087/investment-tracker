@@ -1,0 +1,179 @@
+/* Variables */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --accent-color: #f39c12;
+    --danger-color: #e74c3c;
+    --text-color: #333;
+    --bg-color: #f8f9fa;
+    --card-bg: #fff;
+    --border-color: #dee2e6;
+    --input-bg: #fff;
+}
+
+/* Dark mode variables */
+[data-theme="dark"] {
+    --primary-color: #2980b9;
+    --secondary-color: #27ae60;
+    --accent-color: #d35400;
+    --danger-color: #c0392b;
+    --text-color: #f8f9fa;
+    --bg-color: #212529;
+    --card-bg: #343a40;
+    --border-color: #495057;
+    --input-bg: #343a40;
+}
+
+/* Global Styles */
+body {
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-success {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-warning {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* Form styles */
+.form-control {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+.form-control:focus {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+/* Table styles */
+.table {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .table {
+    --bs-table-striped-color: var(--text-color);
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+    --bs-table-active-color: var(--text-color);
+    --bs-table-active-bg: rgba(255, 255, 255, 0.1);
+    --bs-table-hover-color: var(--text-color);
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.075);
+}
+
+/* Navbar styles */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .navbar-light {
+    background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .navbar-light .navbar-brand,
+[data-theme="dark"] .navbar-light .nav-link {
+    color: var(--text-color);
+}
+
+/* Footer styles */
+[data-theme="dark"] .footer {
+    background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .footer .text-muted {
+    color: var(--text-color) !important;
+}
+
+/* Dashboard cards */
+.dashboard-card {
+    border-radius: 10px;
+    overflow: hidden;
+    border: none;
+    margin-bottom: 20px;
+}
+
+.dashboard-card .card-header {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+}
+
+.dashboard-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.dashboard-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+/* Portfolio cards */
+.portfolio-card {
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Asset cards */
+.asset-card {
+    border-left: 4px solid var(--secondary-color);
+}
+
+/* Transaction list */
+.transaction-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Performance indicators */
+.performance-positive {
+    color: var(--secondary-color);
+}
+
+.performance-negative {
+    color: var(--danger-color);
+}
+
+/* Charts */
+.chart-container {
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .dashboard-value {
+        font-size: 1.4rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow mb-4">
+            <div class="card-body text-center py-5">
+                <h1 class="display-4 mb-4">Benvenuto su Investment Tracker</h1>
+                <p class="lead">La soluzione completa per gestire e monitorare i tuoi investimenti finanziari</p>
+                <div class="mt-4">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg mx-2">Accedi</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary btn-lg mx-2">Registrati</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Funzionalità principali -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="fas fa-briefcase fa-3x mb-3 text-primary"></i>
+                        <h4 class="card-title">Gestione Portafogli</h4>
+                        <p class="card-text">Crea e gestisci multiple portafogli di investimento. Tiene traccia delle tue transazioni e analizza le performance.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line fa-3x mb-3 text-primary"></i>
+                        <h4 class="card-title">Analisi Avanzate</h4>
+                        <p class="card-text">Analizza le performance con metriche avanzate come TWR, CAGR e calcolo del rischio. Confronta i tuoi portafogli con i benchmark.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="fas fa-calculator fa-3x mb-3 text-primary"></i>
+                        <h4 class="card-title">Simulazioni e FIRE</h4>
+                        <p class="card-text">Simula la crescita dei tuoi investimenti nel futuro e calcola quando potrai raggiungere l'indipendenza finanziaria.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Altre caratteristiche -->
+        <div class="card shadow mt-4 mb-5">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Caratteristiche principali</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Gestione multi-portafoglio</li>
+                            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Importazione transazioni da CSV</li>
+                            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Ricerca di strumenti finanziari con dati in tempo reale</li>
+                            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Calcolo metriche di performance (TWR, MWR, CAGR)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Stress test con scenari storici</li>
+                            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Simulazioni Monte Carlo</li>
+                            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Analisi di correlazione tra asset</li>
+                            <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i> Calcolatori per investimenti futuri e FIRE</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

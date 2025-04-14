@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>{{ portfolio.name }}</h1>
+        {% if portfolio.description %}
+            <p class="lead">{{ portfolio.description }}</p>
+        {% endif %}
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            <a href="{{ url_for('portfolio.edit', id=portfolio.id) }}" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i> Modifica
+            </a>
+            <a href="{{ url_for('portfolio.performance', id=portfolio.id) }}" class="btn btn-info text-white">
+                <i class="fas fa-chart-line me-1"></i> Performance
+            </a>
+            <a href="{{ url_for('analysis.stress_test', portfolio_id=portfolio.id) }}" class="btn btn-warning text-white">
+                <i class="fas fa-exclamation-triangle me-1"></i> Stress Test
+            </a>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deletePortfolioModal">
+                <i class="fas fa-trash-alt me-1"></i> Elimina
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiche principali -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card dashboard-card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-wallet me-2"></i> Valore Attuale
+            </div>
+            <div class="card-body">
+                <div class="dashboard-value format-currency">{{ stats.current_value }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card dashboard-card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-coins me-2"></i> Capitale Investito
+            </div>
+            <div class="card-body">
+                <div class="dashboard-value format-currency">{{ stats.invested_capital }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card dashboard-card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-chart-line me-2"></i> Rendimento
+            </div>
+            <div class="card-body">
+                <div class="dashboard-value format-percentage {% if stats.total_return > 0 %}performance-positive{% elif stats.total_return < 0 %}performance-negative{% endif %}">{{ stats.total_return }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card dashboard-card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-receipt me-2"></i> Commissioni
+            </div>
+            <div class="card-body">
+                <div class="dashboard-value format-currency">{{ stats.total_commissions }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Asset del portafoglio -->
+<div class="card shadow mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i> Asset nel portafoglio</h5>
+        <a href="{{ url_for('asset.search', portfolio_id=portfolio.id) }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Aggiungi Asset
+        </a>
+    </div>
+    <div class="card-body">
+        {% if assets %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Nome</th>
+                            <th>Quantità</th>
+                            <th>Prezzo</th>
+                            <th>Valore Attuale</th>
+                            <th>Capitale Investito</th>
+                            <th>Rendimento</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in assets %}
+                        <tr>
+                            <td><strong>{{ asset.ticker }}</strong></td>
+                            <td>{{ asset.name }}</td>
+                            <td>{{ asset.shares }}</td>
+                            <td class="format-currency" data-currency="{{ asset.currency }}">{{ asset.price }}</td>
+                            <td class="format-currency">{{ asset.value }}</td>
+                            <td class="format-currency">{{ asset.invested }}</td>
+                            <td class="format-percentage {% if asset.return > 0 %}performance-positive{% elif asset.return < 0 %}performance-negative{% endif %}">{{ asset.return }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('asset.view', id=asset.id) }}" class="btn btn-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('asset.add_transaction', asset_id=asset.id) }}" class="btn btn-success">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <p>Non hai ancora aggiunto nessun asset a questo portafoglio.</p>
+                <a href="{{ url_for('asset.search', portfolio_id=portfolio.id) }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Aggiungi il tuo primo asset
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Importa transazioni -->
+<div class="card shadow mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-file-import me-2"></i> Importazione transazioni</h5>
+    </div>
+    <div class="card-body">
+        <p>Importa le tue transazioni da un file CSV per aggiungere rapidamente più transazioni.</p>
+        <a href="{{ url_for('asset.import_transactions', portfolio_id=portfolio.id) }}" class="btn btn-primary">
+            <i class="fas fa-file-import me-1"></i> Importa da CSV
+        </a>
+        <a href="{{ url_for('asset.download_template') }}" class="btn btn-outline-primary ms-2">
+            <i class="fas fa-download me-1"></i> Scarica Template
+        </a>
+    </div>
+</div>
+
+<!-- Modal per eliminazione portafoglio -->
+<div class="modal fade" id="deletePortfolioModal" tabindex="-1" aria-labelledby="deletePortfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePortfolioModalLabel">Conferma eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Sei sicuro di voler eliminare il portafoglio <strong>{{ portfolio.name }}</strong>?</p>
+                <p class="text-danger">Questa azione eliminerà anche tutti gli asset e le transazioni associate e non può essere annullata.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <form id="deletePortfolioForm" action="{{ url_for('portfolio.delete', id=portfolio.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger">Elimina portafoglio</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Funzionalità già inclusa nel main.js
+    });
+</script>
+{% endblock %}

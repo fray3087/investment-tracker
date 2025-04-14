@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h1>Ciao, {{ current_user.username }}!</h1>
+        <p class="lead">Benvenuto nella tua dashboard di gestione investimenti.</p>
+    </div>
+</div>
+
+<!-- Statistiche principali -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card dashboard-card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-wallet me-2"></i> Valore Attuale
+            </div>
+            <div class="card-body">
+                <div class="dashboard-value format-currency">{{ total_value }}</div>
+                <div class="dashboard-label">Valore totale dei tuoi investimenti</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card dashboard-card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-coins me-2"></i> Capitale Investito
+            </div>
+            <div class="card-body">
+                <div class="dashboard-value format-currency">{{ total_invested }}</div>
+                <div class="dashboard-label">Totale versato (escluse commissioni)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card dashboard-card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-chart-line me-2"></i> Rendimento
+            </div>
+            <div class="card-body">
+                <div class="dashboard-value format-percentage {% if total_return > 0 %}performance-positive{% elif total_return < 0 %}performance-negative{% endif %}">{{ total_return }}</div>
+                <div class="dashboard-label">Rendimento totale</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card dashboard-card h-100">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-briefcase me-2"></i> Portafogli
+            </div>
+            <div class="card-body">
+                <div class="dashboard-value">{{ portfolios|length }}</div>
+                <div class="dashboard-label">Numero di portafogli</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Portafogli -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i> I tuoi portafogli</h5>
+                <a href="{{ url_for('portfolio.create') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i> Nuovo
+                </a>
+            </div>
+            <div class="card-body">
+                {% if portfolios %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Valore Attuale</th>
+                                    <th>Capitale Investito</th>
+                                    <th>Rendimento</th>
+                                    <th>Asset</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for portfolio in portfolios %}
+                                <tr>
+                                    <td>{{ portfolio.name }}</td>
+                                    <td class="format-currency">{{ portfolio.current_value() }}</td>
+                                    <td class="format-currency">{{ portfolio.invested_capital() }}</td>
+                                    <td class="format-percentage {% if portfolio.total_return() > 0 %}performance-positive{% elif portfolio.total_return() < 0 %}performance-negative{% endif %}">{{ portfolio.total_return() }}</td>
+                                    <td>{{ portfolio.asset_count() }}</td>
+                                    <td>
+                                        <a href="{{ url_for('portfolio.view', id=portfolio.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('portfolio.edit', id=portfolio.id) }}" class="btn btn-sm btn-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <p>Non hai ancora creato nessun portafoglio.</p>
+                        <a href="{{ url_for('portfolio.create') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> Crea il tuo primo portafoglio
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Link rapidi -->
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-search fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Cerca strumenti</h5>
+                <p class="card-text">Trova e aggiungi nuovi strumenti finanziari ai tuoi portafogli.</p>
+                <a href="{{ url_for('asset.search') }}" class="btn btn-primary">Cerca</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-bar fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Analisi</h5>
+                <p class="card-text">Analizza le performance dei tuoi investimenti con metriche avanzate.</p>
+                <a href="{{ url_for('analysis.dashboard') }}" class="btn btn-primary">Analizza</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-calculator fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Simulazioni</h5>
+                <p class="card-text">Simula la crescita dei tuoi investimenti futuri e calcola il FIRE.</p>
+                <a href="{{ url_for('analysis.simulation') }}" class="btn btn-primary">Simula</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Formatta i valori
+    document.addEventListener('DOMContentLoaded', function() {
+        // Funzionalità già inclusa nel main.js
+    });
+</script>
+{% endblock %}

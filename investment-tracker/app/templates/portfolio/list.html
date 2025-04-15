@@ -41,9 +41,11 @@
                                         <a href="{{ url_for('portfolio.edit', id=portfolio.id) }}" class="btn btn-sm btn-outline-secondary me-1">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="{{ url_for('portfolio.delete', id=portfolio.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Sei sicuro di voler eliminare questo portafoglio?');">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </a>
+                                        <!-- Bottone Elimina: Form con metodo POST e token CSRF -->
+                                        <form action="{{ url_for('portfolio.delete', id=portfolio.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Sei sicuro di voler eliminare questo portafoglio?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        </form>
                                     </td>
                                 </tr>
                                 {% endfor %}

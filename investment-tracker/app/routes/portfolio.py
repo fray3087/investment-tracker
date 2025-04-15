@@ -73,10 +73,7 @@ def edit(id):
 @portfolio.route('/delete/<id>', methods=['POST'])
 @login_required
 def delete(id):
-    """Elimina un portafoglio"""
     portfolio_obj = Portfolio.query.get_or_404(id)
-    
-    # Verifica che l'utente sia il proprietario del portafoglio
     if portfolio_obj.user_id != current_user.id:
         flash('Non sei autorizzato a eliminare questo portafoglio')
         return redirect(url_for('portfolio.list'))
@@ -86,6 +83,7 @@ def delete(id):
     
     flash('Portafoglio eliminato con successo')
     return redirect(url_for('portfolio.list'))
+
 
 @portfolio.route('/view/<id>')
 @login_required

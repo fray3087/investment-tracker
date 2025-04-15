@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i> Modifica Portafoglio</h5>
+                    <a href="{{ url_for('portfolio.view', id=portfolio.id) }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Indietro
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control") }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small mt-1">{{ form.description.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.benchmark.label(class="form-label") }}
+                            {{ form.benchmark(class="form-control") }}
+                            {% if form.benchmark.errors %}
+                                <div class="text-danger small mt-1">{{ form.benchmark.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Salva modifiche
+                            </button>
+
+                            <form method="POST" action="{{ url_for('portfolio.delete', id=portfolio.id) }}" onsubmit="return confirm('Sei sicuro di voler eliminare questo portafoglio?');">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt me-1"></i> Elimina
+                                </button>
+                            </form>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

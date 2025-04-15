@@ -1,67 +1,58 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row mt-5">
-    <div class="col-md-12">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-briefcase me-2"></i> I tuoi portafogli</h5>
-                <a href="{{ url_for('portfolio.create') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-plus me-1"></i> Nuovo Portafoglio
-                </a>
-            </div>
-            <div class="card-body">
-                {% if portfolios %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Valore Attuale</th>
-                                    <th>Capitale Investito</th>
-                                    <th>Rendimento</th>
-                                    <th>Asset</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for portfolio in portfolios %}
-                                <tr>
-                                    <td>{{ portfolio.name }}</td>
-                                    <td class="format-currency">{{ portfolio.current_value() }}</td>
-                                    <td class="format-currency">{{ portfolio.invested_capital() }}</td>
-                                    <td class="format-percentage {% if portfolio.total_return() > 0 %}performance-positive{% elif portfolio.total_return() < 0 %}performance-negative{% endif %}">
-                                        {{ portfolio.total_return() }}
-                                    </td>
-                                    <td>{{ portfolio.asset_count() }}</td>
-                                    <td>
-                                        <a href="{{ url_for('portfolio.view', id=portfolio.id) }}" class="btn btn-sm btn-outline-primary me-1">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ url_for('portfolio.edit', id=portfolio.id) }}" class="btn btn-sm btn-outline-secondary me-1">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <!-- Bottone Elimina: Form con metodo POST e token CSRF -->
-                                        <form action="{{ url_for('portfolio.delete', id=portfolio.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Sei sicuro di voler eliminare questo portafoglio?');">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center py-4">
-                        <p class="lead">Non hai ancora creato alcun portafoglio.</p>
-                        <a href="{{ url_for('portfolio.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus me-1"></i> Crea il tuo primo portafoglio
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+<div class="container mt-5">
+  <h2 class="mb-4">I miei Portafogli</h2>
+  {% if portfolios %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Nome</th>
+            <th>Valore Attuale</th>
+            <th>Capitale Investito</th>
+            <th>Rendimento</th>
+            <th>Asset</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for portfolio in portfolios %}
+          <tr>
+            <td>{{ portfolio.name }}</td>
+            <td class="format-currency">{{ portfolio.current_value() }}</td>
+            <td class="format-currency">{{ portfolio.invested_capital() }}</td>
+            <td class="format-percentage {% if portfolio.total_return() > 0 %}performance-positive{% elif portfolio.total_return() < 0 %}performance-negative{% endif %}">
+              {{ portfolio.total_return() }}
+            </td>
+            <td>{{ portfolio.asset_count() }}</td>
+            <td>
+              <a href="{{ url_for('portfolio.view', id=portfolio.id) }}" class="btn btn-sm btn-outline-primary me-1">
+                <i class="fas fa-eye"></i>
+              </a>
+              <a href="{{ url_for('portfolio.edit', id=portfolio.id) }}" class="btn btn-sm btn-outline-secondary me-1">
+                <i class="fas fa-edit"></i>
+              </a>
+              <!-- Form di eliminazione con token CSRF e metodo POST -->
+              <form action="{{ url_for('portfolio.delete', id=portfolio.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Sei sicuro di voler eliminare questo portafoglio?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger me-1">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  {% else %}
+    <div class="text-center py-4">
+      <p class="lead">Non hai ancora creato alcun portafoglio.</p>
+      <a href="{{ url_for('portfolio.create') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Crea il tuo primo portafoglio
+      </a>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}

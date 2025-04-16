@@ -28,33 +28,37 @@ class User(UserMixin, db.Model):
     
     @password.setter
     def password(self, password):
-        """Genera l'hash della password"""
-        self.password_hash = generate_password_hash(password)
+        """
+        Genera l'hash della password usando il metodo 'pbkdf2:sha256', 
+        che è supportato da Werkzeug e riconosciuto correttamente da check_password_hash.
+        """
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
     
     def verify_password(self, password):
-        """Verifica se la password corrisponde all'hash"""
+        """Verifica se la password inserita corrisponde all'hash memorizzato."""
         return check_password_hash(self.password_hash, password)
     
     def get_reset_password_token(self, expires_in=3600):
-        """Genera un token per il reset della password"""
+        """Genera un token JWT per il reset della password."""
         return jwt.encode(
             {'reset_password': self.id, 'exp': datetime.utcnow() + timedelta(seconds=expires_in)},
             current_app.config['SECRET_KEY'], algorithm='HS256')
     
     @staticmethod
     def verify_reset_password_token(token):
-        """Verifica il token di reset password e restituisce l'utente"""
+        """Verifica il token per il reset della password e restituisce l'utente corrispondente."""
         try:
-            id = jwt.decode(token, current_app.config['SECRET_KEY'],
-                            algorithms=['HS256'])['reset_password']
-            return User.query.get(id)
-        except:
+            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+            user_id = data.get('reset_password')
+            return User.query.get(user_id)
+        except Exception as e:
+            current_app.logger.error(f"Errore nel verificare il token di reset: {e}")
             return None
     
     def __repr__(self):
         return f'<User {self.username}>'
 
 @login_manager.user_loader
-def load_user(id):
-    """Carica l'utente dal database per Flask-Login"""
-    return User.query.get(str(id))
+def load_user(user_id):
+    """Carica l'utente dal database per Flask-Login."""
+    return User.query.get(str(user_id))

@@ -5,7 +5,9 @@
     <div class="row">
         <div class="col-md-8">
             <h2>{{ asset.name }} ({{ asset.ticker }})</h2>
-            <p class="text-muted">Tipo: {{ asset.asset_type }} | Valuta: {{ asset.currency }} | Portafoglio: {{ portfolio.name }}</p>
+            <p class="text-muted">
+                Tipo: {{ asset.asset_type }} | Valuta: {{ asset.currency }} | Portafoglio: {{ portfolio.name }}
+            </p>
         </div>
         <div class="col-md-4 text-end">
             <a href="{{ url_for('portfolio.view', id=portfolio.id) }}" class="btn btn-secondary mb-2">
@@ -54,7 +56,9 @@
                 </a>
                 {% if transactions %}
                 <form method="POST" action="{{ url_for('asset.delete', id=asset.id) }}" class="d-inline" onsubmit="return confirm('Eliminare tutte le transazioni e l’asset?');">
-                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash-alt me-1"></i> Elimina Asset</button>
+                    <button class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash-alt me-1"></i> Elimina Asset
+                    </button>
                 </form>
                 {% endif %}
             </div>
@@ -87,10 +91,10 @@
                                 <a href="{{ url_for('asset.edit_transaction', id=tx.id) }}" class="btn btn-sm btn-outline-secondary">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ url_for('asset.delete_transaction', id=tx.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Eliminare questa transazione?');">
-                                    <button class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                <form method="POST" action="{{ url_for('asset.delete_transaction', id=tx.id) }}" style="display:inline;">
+                                    <!-- Aggiungi il CSRF token -->
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Sei sicuro di voler eliminare questa transazione?');">Elimina</button>
                                 </form>
                             </td>
                         </tr>

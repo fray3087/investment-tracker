@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Aggiungi Transazione - {{ asset.name }}</h2>
+  <form method="POST">
+    <!-- Campo CSRF -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <div class="mb-3">
+      <label for="transaction_date" class="form-label">Data operazione</label>
+      <input type="date" class="form-control" name="transaction_date" required>
+    </div>
+    <div class="mb-3">
+      <label for="transaction_type" class="form-label">Tipo di transazione</label>
+      <select name="transaction_type" class="form-select" required>
+        <option value="BUY">Acquisto</option>
+        <option value="SELL">Vendita</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="shares" class="form-label">Quantità (azioni)</label>
+      <input type="number" class="form-control" name="shares" step="0.01" required>
+    </div>
+    <div class="mb-3">
+      <label for="price" class="form-label">Prezzo per azione</label>
+      <input type="number" class="form-control" name="price" step="0.01" required>
+    </div>
+    <div class="mb-3">
+      <label for="commission" class="form-label">Commissioni</label>
+      <input type="number" class="form-control" name="commission" step="0.01" value="0">
+    </div>
+    <div class="mb-3">
+      <label for="notes" class="form-label">Note</label>
+      <textarea class="form-control" name="notes"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Salva</button>
+    <a href="{{ url_for('asset.view', id=asset.id) }}" class="btn btn-secondary">Annulla</a>
+  </form>
+</div>
+{% endblock %}

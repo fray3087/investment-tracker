@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, TextAreaField, HiddenField
-from wtforms.validators import DataRequired, Length, Optional
+from wtforms import StringField, SelectField, SubmitField, TextAreaField, FileField, DecimalField, FloatField
+from wtforms.fields.html5 import DateField  # Import corretto per WTForms 2.3.3
+from wtforms.validators import DataRequired, Length, Optional, NumberRange
+from flask_wtf.file import FileAllowed
 
 class AssetSearchForm(FlaskForm):
     """Form per la ricerca di strumenti finanziari"""
@@ -37,9 +39,6 @@ class AssetForm(FlaskForm):
 
 class TransactionForm(FlaskForm):
     """Form per la creazione e modifica di transazioni"""
-    from wtforms.fields import DateField, FloatField
-    from wtforms.validators import NumberRange
-    
     transaction_date = DateField('Data Transazione', format='%Y-%m-%d', validators=[DataRequired()])
     transaction_type = SelectField('Tipo', choices=[
         ('BUY', 'Acquisto'),
@@ -50,3 +49,11 @@ class TransactionForm(FlaskForm):
     commission = FloatField('Commissione', validators=[Optional(), NumberRange(min=0)])
     notes = TextAreaField('Note', validators=[Optional(), Length(max=500)])
     submit = SubmitField('Salva')
+
+class ImportTransactionsForm(FlaskForm):
+    """Form per l'importazione di transazioni da file CSV"""
+    csv_file = FileField('File CSV', validators=[
+        DataRequired(),
+        FileAllowed(['csv'], 'Solo file CSV sono supportati')
+    ])
+    submit = SubmitField('Importa')

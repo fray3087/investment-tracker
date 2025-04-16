@@ -4,8 +4,11 @@ import uuid
 import yfinance as yf
 import pandas as pd
 
+# Importa la funzione per recuperare il prezzo da Finnhub
+from app.services.finnhub import get_stock_quote
+
 class Asset(db.Model):
-    """Modello per gli strumenti finanziari"""
+    """Modello per gli strumenti finanziari."""
     __tablename__ = 'assets'
     
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -24,60 +27,73 @@ class Asset(db.Model):
     # Chiave esterna per il portafoglio
     portfolio_id = db.Column(db.String(36), db.ForeignKey('portfolios.id'), nullable=False)
     
-    # Relazioni
+    # Relazioni: le transazioni relative a questo asset
     transactions = db.relationship('Transaction', backref='asset', lazy='dynamic', cascade='all, delete-orphan')
     
     def current_shares(self):
-        """Calcola il numero attuale di azioni possedute"""
+        """Calcola il numero attuale di azioni possedute."""
         return sum(t.shares for t in self.transactions)
     
     def current_value(self):
-        """Calcola il valore attuale dell'asset"""
+        """Calcola il valore attuale dell'asset."""
         shares = self.current_shares()
-        
-        # Se non ci sono azioni, il valore è 0
         if shares == 0:
             return 0
-            
-        # Ottieni il prezzo attuale
         current_price = self.get_current_price()
-        
         return shares * current_price
     
     def invested_capital(self):
-        """Calcola il capitale investito (escluse le commissioni)"""
+        """Calcola il capitale investito (escluse le commissioni)."""
         return sum(t.shares * t.price for t in self.transactions if t.transaction_type == 'BUY') - \
                sum(t.shares * t.price for t in self.transactions if t.transaction_type == 'SELL')
     
     def total_commissions(self):
-        """Calcola il totale delle commissioni pagate"""
+        """Calcola il totale delle commissioni pagate."""
         return sum(t.commission for t in self.transactions if t.commission is not None)
     
     def get_current_price(self):
-        """Ottiene il prezzo attuale usando yfinance"""
-        # Se il prezzo è stato aggiornato di recente, usalo
+        """Ottiene il prezzo attuale dell'asset con fallback a Finnhub."""
+
+        # Se il prezzo è stato aggiornato recentemente (entro 1 ora), usa quello memorizzato
         if self.last_price and self.last_price_update and \
-           (datetime.utcnow() - self.last_price_update).total_seconds() < 3600:  # 1 ora
+           (datetime.utcnow() - self.last_price_update).total_seconds() < 3600:
             return self.last_price
-            
-        # Altrimenti, ottieni il prezzo da Yahoo Finance
+
+        # Primo tentativo: yfinance
         try:
             ticker_data = yf.Ticker(self.ticker)
             price = ticker_data.history(period='1d')['Close'].iloc[-1]
-            
-            # Aggiorna il prezzo nel database
+
             self.last_price = price
             self.last_price_update = datetime.utcnow()
             db.session.commit()
-            
+
+            print(f"[YFINANCE OK] Prezzo per {self.ticker}: {price}")
             return price
+
         except Exception as e:
-            print(f"Errore nel recupero del prezzo per {self.ticker}: {e}")
-            # In caso di errore, usa l'ultimo prezzo noto
-            return self.last_price or 0
-    
+            print(f"[YFINANCE FALLBACK] Errore con yfinance per {self.ticker}: {e}")
+
+            # Secondo tentativo: Finnhub
+            try:
+                data = get_stock_quote(self.ticker)
+                price = data.get('c')
+                if price is None:
+                    raise Exception("Prezzo non trovato da Finnhub")
+
+                self.last_price = price
+                self.last_price_update = datetime.utcnow()
+                db.session.commit()
+
+                print(f"[FINNHUB OK] Prezzo recuperato da Finnhub per {self.ticker}: {price}")
+                return price
+
+            except Exception as ex:
+                print(f"[FINNHUB FAIL] Errore nel recupero del prezzo per {self.ticker} da Finnhub: {ex}")
+                return self.last_price or 0
+
     def get_historical_data(self, period='max'):
-        """Ottiene i dati storici dell'asset"""
+        """Ottiene i dati storici dell'asset."""
         try:
             ticker_data = yf.Ticker(self.ticker)
             hist = ticker_data.history(period=period)
@@ -87,26 +103,20 @@ class Asset(db.Model):
             return pd.DataFrame()
     
     def calculate_performance(self, period):
-        """Calcola la performance dell'asset per un periodo specifico"""
+        """Calcola la performance percentuale dell'asset per un dato periodo."""
         hist = self.get_historical_data(period=period)
-        
         if hist.empty:
             return 0
-            
-        # Calcola il rendimento percentuale
         first_price = hist['Close'].iloc[0]
         last_price = hist['Close'].iloc[-1]
-        
         return (last_price - first_price) / first_price * 100
     
     def calculate_my_performance(self):
-        """Calcola la performance personale basata sulle transazioni"""
+        """Calcola la performance personale basata sulle transazioni."""
         invested = self.invested_capital()
         current = self.current_value()
-        
         if invested == 0:
             return 0
-            
         return (current - invested) / invested * 100
     
     def __repr__(self):

@@ -6,6 +6,9 @@ from config import config
 from flask_wtf.csrf import CSRFProtect
 from flask_mail import Mail
 from datetime import datetime
+from dotenv import load_dotenv  # Importa load_dotenv
+
+load_dotenv()  # Carica le variabili d'ambiente dal file .env
 
 # Inizializzazione delle estensioni
 db = SQLAlchemy()
@@ -50,8 +53,6 @@ def create_app(config_name):
     # Registrazione del filtro personalizzato per formattare le valute
     def format_currency(value):
         try:
-            # Ad esempio, in questo caso formattiamo come dollari;
-            # puoi modificare il simbolo o il formato secondo le tue esigenze.
             return "${:,.2f}".format(float(value))
         except (ValueError, TypeError):
             return value
